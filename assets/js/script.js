@@ -1,6 +1,6 @@
 // extractYoutubeFullInfo.js
 // 输出顺序：
-// uploaderId \t h3 a.title \t badge文本 \t 第二个inline-metadata-item文本 \t 完整URL
+// 提取数字部分 \t uploaderId \t title \t badge \t metadata \t URL
 
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -10,10 +10,38 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!inputEl || !outputEl || !uploaderInput) return;
 
+
+  // ========= 从标题提取数字 =========
+  // 规则：
+  // 2022.01.31 -> 2022.01.31
+  // Pt2 s1 2022.2 -> 2 1 2022.2
+  //
+  // 思路：
+  // 找所有「数字开头」片段：
+  // 允许 . - / 等数字连接符
+  function extractNumbers(title) {
+
+    if (!title) return "";
+
+    // 匹配：
+    // 2022
+    // 2022.01
+    // 2022.01.31
+    // 2022-01
+    // 2022/01
+    // 或 单独数字 2 / 1
+    const matches = title.match(/\d+(?:[.\-\/]\d+)*/g);
+
+    if (!matches) return "";
+
+    // 用空格连接
+    return matches.join(" ");
+  }
+
+
   // ========= 提取单个 ytd-rich-grid-media =========
   function extractFromMedia(mediaEl, uploaderId) {
 
-    // ---------- h3 a ----------
     const link = mediaEl.querySelector("h3 a");
 
     if (!link) return "";
@@ -26,7 +54,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     if (!href) return "";
 
-    // ✅ 补全 YouTube 链接
+    // 补全 YouTube URL
     if (!href.startsWith("http")) {
       href = "https://www.youtube.com" + href;
     }
@@ -39,7 +67,7 @@ document.addEventListener("DOMContentLoaded", function () {
       ? badgeEl.textContent.trim()
       : "";
 
-    // ---------- 第二个 metadata span ----------
+    // ---------- 第二个 metadata ----------
     const metaSpans = mediaEl.querySelectorAll(
       "span.inline-metadata-item.style-scope.ytd-video-meta-block"
     );
@@ -50,11 +78,15 @@ document.addEventListener("DOMContentLoaded", function () {
       secondMetaText = metaSpans[1].textContent.trim();
     }
 
-    // ✅ uploaderId 加在最前
-    return `${uploaderId}\t${title}\t${badgeText}\t${secondMetaText}\t${href}`;
+    // ---------- 提取数字 ----------
+    const numbers = extractNumbers(title);
+
+    // ✅ 最终输出
+    return `${numbers}\t${uploaderId}\t${title}\t${badgeText}\t${secondMetaText}\t${href}`;
   }
 
-  // ========= 主解析函数 =========
+
+  // ========= 主解析 =========
   function parseHTML() {
 
     const htmlText = inputEl.value.trim();
@@ -77,7 +109,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const tag = outer.tagName.toLowerCase();
 
-    // ===== 单个 ytd-rich-grid-media =====
+    // ===== 单个 =====
     if (tag === "ytd-rich-grid-media") {
 
       outputEl.value =
@@ -86,7 +118,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    // ===== div 包含多个 =====
+    // ===== div 多个 =====
     if (tag === "div") {
 
       const medias =
@@ -111,12 +143,11 @@ document.addEventListener("DOMContentLoaded", function () {
     outputEl.value = "";
   }
 
+
   // ========= 即时更新 =========
 
-  // HTML 输入变化
   inputEl.addEventListener("input", parseHTML);
 
-  // uploaderId 输入变化（同样即时更新）
   uploaderInput.addEventListener("input", parseHTML);
 
 });
