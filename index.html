@@ -3,69 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <title>HTML 内容提取工具</title>
+<link rel="stylesheet" href="assets/css/style.css">
 </head>
-
 <body>
 
-<h2>HTML 输入</h2>
+<h2>Index</h2>
 
-<textarea
- id="inputHTML"
- rows="15"
- cols="100"
- placeholder="在这里粘贴 HTML 代码..."
-></textarea>
+<p>请选择功能页面：</p>
 
-<br><br>
-
-<button onclick="handleExtract()">
-解析
-</button>
-
-<h2>解析结果</h2>
-
-<textarea
- id="outputText"
- rows="15"
- cols="100"
- placeholder="解析结果会显示在这里..."
- readonly
-></textarea>
-
-
-<script>
-
-/**
- * 点击按钮触发
- */
-function handleExtract() {
-
-  const input =
-    document.getElementById("inputHTML").value;
-
-  // 调用解析函数
-  const result = extractContent(input);
-
-  document.getElementById("outputText")
-    .value = result;
-}
-
-
-/**
- * HTML解析函数（暂时留空）
- * @param {string} htmlText
- * @returns {string}
- */
-function extractContent(htmlText) {
-
-  // ===== 以后在这里写解析逻辑 =====
-
-  // 示例返回
-  return "这里是解析结果（尚未实现解析逻辑）";
-
-}
-
-</script>
+<ul>
+  <li><a href="previewHome.html">主页预览</a></li>
+  <li><a href="previewSearch.html">搜索预览</a></li>
+</ul>
 
 </body>
 </html>
